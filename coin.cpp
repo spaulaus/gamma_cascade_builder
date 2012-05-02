@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -16,9 +17,11 @@ double Efficiency(double &gamma);
 void CoinFit(const double &gammaA, const double &gammaB);
 void Coin(const double &gammaA, const double &gammaB);
 
+
 //********** Main **********
 int main(int argc, char* argv[]) {
    Coin(1,3);
+   //Coin(atof(argv[1]), atof(argv[2]));
    //CoinFit(atof(argv[1]), atof(argv[2]));
 }
 
@@ -31,38 +34,92 @@ bool CheckRange(double &num, double &low, double &high) {
 
 //********** Coin **********
 void Coin(const double &gammaA, const double&gammaB) {
+   typedef pair<double,double> GammaPair;
+   typedef multimap<double,double> CoinMap;
+   typedef pair<CoinMap::iterator, CoinMap::iterator> RangePair;
+
+   CoinMap coinMap;
    double gamma, coinGamma;
-   multimap<double,double> coin, invCoin;
-   map<double,double> main, tree0, tree1;
    set<double> gammas;
-   vector<bool> partA, partB;
+   set<GammaPair> coinSet;
+   vector<double> trunk, branch0, branch1;
 
    ifstream input("coin-test.dat");
    while(!input.eof()) {
-      
       input >> gamma >> coinGamma;
       gammas.insert(gamma);
-      coin.insert(make_pair(gamma, coinGamma));
-      invCoin.insert(make_pair(coinGamma, gamma));
+      coinSet.insert(make_pair(gamma,coinGamma));
    }
    input.close();
    
-   for(set<double>::iterator it = gammas.begin(); it != gammas.end(); it++) {
-      pair<multimap<double,double>::iterator, multimap<double,double>::iterator> 
-	 currentRange = coin.equal_range((*it));
+   //! Build the coincidence map. (PART A)
+   cout << "Building Coincidence Map (PART A)" << endl;
+   set<GammaPair> tempCoinSet = coinSet;
+   for(set<GammaPair>::iterator it = tempCoinSet.begin(); 
+       it != tempCoinSet.end(); it++) {
+      GammaPair inv = make_pair(it->second, it->first);
+      set<GammaPair>::iterator itInvPos = tempCoinSet.find(inv);
+      
+      cout << "The Current Pair: " << it->first << " " << it->second << endl;
 
-      cout << "Begin Gammas in Coincidence with: " << (*it) << endl;
-      for(multimap<double,double>::iterator it = currentRange.first; 
-	  it != currentRange.second; it++) {
-	 //cout << (*it).first << " " << (*it).second << endl;
-	 multimap<double,double>::iterator temp = invCoin.find((*it).second);
-	 
-	 //partA.push_back(invCoin.find(inv) != invCoin.end());
+      if(itInvPos != tempCoinSet.end()) {
+	 coinMap.insert(make_pair(it->first,it->second));
+	 tempCoinSet.erase(inv);
       }
-
-
-      cout << endl;
    }
+
+   cout << endl << "Here's what we've got in the coincidence map" << endl;
+   for(CoinMap::iterator it = coinMap.begin(); it != coinMap.end(); it++)
+      cout << "OH YeAH!!!!! " << (*it).first << " " << (*it).second << endl;
+   
+   cout << endl << "Begin working on building the trees...(PART B)" << endl;
+   for(set<double>::iterator it = gammas.begin(); it != gammas.end(); it++) {
+      cout << "Coincidence info for Gamma " << *it << endl;
+      
+      RangePair currentRange = coinMap.equal_range((*it));
+      
+      //Fills up the trunk.
+      for(CoinMap::iterator itMap = currentRange.first; 
+	  itMap != currentRange.second; itMap++)
+	 trunk.push_back(itMap->second);
+
+      //Outputs the trunk
+      cout << "Trunk : ";
+      for(vector<double>::iterator main = trunk.begin(); 
+	  main != trunk.end(); main++) {
+	 cout << *main << " " ;
+      }
+      cout << endl;
+      //Loops over possible iterations of the trunk and creates branches.
+      if(trunk.size() > 1) {
+	 do {
+	    GammaPair testPair = make_pair(trunk[0], trunk[1]);
+	    if(coinSet.find(testPair) == coinSet.end()) {
+	       branch0.insert(branch0.begin(), trunk.begin()+1, trunk.end());
+	       trunk.erase(trunk.begin()+1);
+	    }
+	    
+	    vector<double> tempTree = branch0;
+	    sort(tempTree.begin(), tempTree.end());
+	    tempTree.erase(unique(tempTree.begin(), tempTree.end()), tempTree.end());
+	    
+	    if(!tempTree.empty()) {
+	       cout << "Branch0 :";
+	       for(vector<double>::iterator itBranch0 = tempTree.begin(); 
+		   itBranch0 != tempTree.end(); itBranch0++) {
+		  cout << *itBranch0 << " ";
+	       }
+	       cout << endl;
+	    }
+	 } while (next_permutation(trunk.begin(), trunk.end()));
+	 cout << endl;
+      }
+	 
+      trunk.clear();
+      branch0.clear();
+      branch1.clear();
+      cout << endl;
+   }//for(set<double>
 }
 
 
