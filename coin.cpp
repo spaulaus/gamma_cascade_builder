@@ -25,6 +25,7 @@ CoinMap coinMap;
 set<double> gammas;
 set<GammaPair> coinSet;
 set<set<double> > branches;
+static int branchNum;
 
 //********** Main **********
 int main(int argc, char* argv[]) {
@@ -48,7 +49,7 @@ void BranchBuilder(set<double> &trunk) {
    
    CoinMap::iterator itFound = coinMap.find(*branch.begin());
    if(itFound == coinMap.end()) {
-      cout << "Branch : " << *branch.begin() << endl << endl;
+      cout << "Branch0: " << *branch.begin() << endl << endl;
       return;
    } 
 
@@ -67,18 +68,20 @@ void BranchBuilder(set<double> &trunk) {
    
    branches.insert(branch);
 
-   cout << "Branch: ";
+   cout << "Branch" << branchNum << ": ";
    for(set<double>::iterator it1 = branch.begin(); 
        it1 != branch.end(); it1++)
       cout << *it1 << " ";
    cout << endl;
+
+   branchNum++;
 }
 
 
 //********** Coin **********
 void Coin(const double &gammaA, const double&gammaB) {
    double gamma, coinGamma;
-   ifstream input("coin-test.dat");
+   ifstream input("testCoins01.dat");
    while(!input.eof()) {
       input >> gamma >> coinGamma;
       gammas.insert(gamma);
@@ -93,7 +96,7 @@ void Coin(const double &gammaA, const double&gammaB) {
    for(set<GammaPair>::iterator it = tempCoinSet.begin(); 
        it != tempCoinSet.end(); it++) {
       gamma = it->first;
-      if(tempGamma != gamma) {
+      if(tempGamma != gamma || *it == *tempCoinSet.rbegin()) {
 	 coinMap.insert(make_pair(tempGamma,tempSet));
 	 tempSet.clear();
       }
@@ -103,9 +106,8 @@ void Coin(const double &gammaA, const double&gammaB) {
       
       if(itInvPos != tempCoinSet.end()) {
 	 tempSet.insert(it->second);
-	 tempCoinSet.erase(inv);
+	 //tempCoinSet.erase(inv);
       }
-         
       tempGamma = gamma;
    }
 
@@ -137,6 +139,7 @@ void Coin(const double &gammaA, const double&gammaB) {
       } while (trunk.size() > 1);
 
       cout << endl;
+      branchNum = 0;
    }//for(set<double>
 }//void Coin
 
