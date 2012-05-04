@@ -1,9 +1,7 @@
-#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <set>
-#include <vector>
 
 #include <cmath>
 #include <cstdlib>
@@ -16,7 +14,7 @@ bool CheckRange(double &num, double &low, double &high);
 double Efficiency(double &gamma);
 void BranchBuilder(set<double> &trunk);
 void CoinFit(const double &gammaA, const double &gammaB);
-void Coin(const double &gammaA, const double &gammaB);
+void Coin(void);
 
 typedef pair<double,double> GammaPair;
 typedef multimap<double, set<double> > CoinMap;
@@ -29,7 +27,7 @@ static int branchNum;
 
 //********** Main **********
 int main(int argc, char* argv[]) {
-   Coin(1,3);
+   Coin();
    //Coin(atof(argv[1]), atof(argv[2]));
    //CoinFit(atof(argv[1]), atof(argv[2]));
 }
@@ -79,7 +77,7 @@ void BranchBuilder(set<double> &trunk) {
 
 
 //********** Coin **********
-void Coin(const double &gammaA, const double&gammaB) {
+void Coin(void) {
    double gamma, coinGamma;
    ifstream input("testCoins01.dat");
    while(!input.eof()) {
