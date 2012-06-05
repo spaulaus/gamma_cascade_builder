@@ -8,14 +8,13 @@
 #include <cstdlib>
 
 using namespace std;
-typedef pair<double,double> data;
 
 //! Declarations
 bool ConicidenceCheck(set<double> &history);
 void BranchBuilder(set<double> history, set<double> searchSet, double currentNode);
 void Coin(void);
 
-void OutputSet(const string &title, const set<double> &output);
+void OutputSet(const string &title, const set<double> &output, const int &number);
 
 typedef pair<double,double> GammaPair;
 typedef multimap<double, set<double> > CoinMap;
@@ -39,7 +38,6 @@ bool CoincidenceCheck(set<double> &history) {
 	  it1 != history.end(); it1++) {
 	 if(*it == *it1)
 	    continue;
-
 	 bool noCoin = coinSet.find(make_pair(*it,*it1)) == coinSet.end();
 	 bool noInv = coinSet.find(make_pair(*it1,*it)) == coinSet.end();
 	 if(noCoin || noInv)
@@ -69,7 +67,6 @@ void BranchBuilder(set<double> history, set<double> searchSet, double currentNod
    set_intersection(searchSet.begin(), searchSet.end(),
 		    nodeCoins.begin(), nodeCoins.end(),
 		    inserter(newSearchSet, newSearchSet.begin()) );
-   cout << endl;
    for(set<double>::iterator it = nodeCoins.begin(); it != nodeCoins.end();
        it++) {
       history.insert(*it);
@@ -123,7 +120,7 @@ void Coin(void) {
       cout << endl;
    }
       
-   cout << endl << "Begin working on building the branches...(PART B)" << endl;
+   cout << endl << "Begin working on building the branches...(PART B)";
    for(set<double>::iterator it = gammas.begin(); it != gammas.end(); it++) {
       set<double> parent;
       parent.insert(*it);
@@ -131,16 +128,17 @@ void Coin(void) {
    }//for(set<double>::iterator it
 
    cout << endl << "Here are the cascades: " << endl;
+   int counter = 0;
    for(set<set<double> >::iterator it = cascades.begin(); it != cascades.end();
-       it++) {
-      OutputSet("Branch", *it);
-   }
+       it++, counter++)
+      OutputSet("Cascade", *it, counter);
+
 }//void Coin
 
 
 //********* OutputSet **********
-void OutputSet(const string &title, const set<double> &output) {
-   cout << title << " : ";
+void OutputSet(const string &title, const set<double> &output, const int &number) {
+   cout << title << " " << number << " : ";
    for(set<double>::iterator it = output.begin(); it != output.end(); it++)
       cout << *it << " ";
    cout << endl;
