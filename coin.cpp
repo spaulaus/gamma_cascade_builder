@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -10,10 +11,8 @@ using namespace std;
 typedef pair<double,double> data;
 
 //! Declarations
-bool CheckRange(double &num, double &low, double &high);
-double Efficiency(double &gamma);
-void BranchBuilder(set<double> &trunk);
-void CoinFit(const double &gammaA, const double &gammaB);
+bool ConicidenceCheck(set<double> &history);
+void BranchBuilder(set<double> history, set<double> searchSet, double currentNode);
 void Coin(void);
 
 typedef pair<double,double> GammaPair;
@@ -22,64 +21,59 @@ typedef multimap<double, set<double> > CoinMap;
 CoinMap coinMap;
 set<double> gammas;
 set<GammaPair> coinSet;
-set<set<double> > branches;
-static int branchNum;
+set<set<double> > cascades;
+set<set<double> > histories;
 
 //********** Main **********
 int main(int argc, char* argv[]) {
    Coin();
-   //Coin(atof(argv[1]), atof(argv[2]));
-   //CoinFit(atof(argv[1]), atof(argv[2]));
 }
 
 
-//********** CheckRange **********
-bool CheckRange(double &num, double &low, double &high) {
-   return((num >= low && num <= high));
+//********** CoincidenceCheck **********
+bool CoincidenceCheck(set<double> &history) {
+   for(set<double>::iterator it = history.begin(); it != history.end(); it++) {
+      for(set<double>::iterator it1 = history.begin(); 
+	  it1 != history.end(); it1++) {
+	 bool hasCoin = coinSet.find(make_pair(*it,*it1)) != coinSet.end();
+	 bool hasInv = coinSet.find(make_pair(*it1,*it)) != coinSet.end();
+	 if(!hasCoin || !hasInv)
+	    return(false);
+      }
+   }
+   return(true);
 }
 
 
 //********** BranchBuilder **********
-void BranchBuilder(set<double> &trunk) {
-   set<double> branch, branch0;
-   branch.insert(*trunk.begin());
-   trunk.erase(*trunk.begin());
-   
-   CoinMap::iterator itFound = coinMap.find(*branch.begin());
-   if(itFound == coinMap.end()) {
-      cout << "Branch0: " << *branch.begin() << endl << endl;
+void BranchBuilder(set<double> history, set<double> searchSet, double currentNode) 
+{
+   if(histories.find(history) != histories.end())
       return;
-   } 
-
-   for(set<set<double> >::iterator it = branches.begin(); 
-       it != branches.end(); it++)
-      if(it->find(*branch.begin()) != it->end())
-	 return;
-   
-   set<double> branchCoin = itFound->second;
-   for(set<double>::iterator it = trunk.begin(); it != trunk.end(); it++) {
-      set<double>::iterator found = branchCoin.find(*it);
-      if(found != branchCoin.end()) {
-	 branch.insert(*it);
+   if(searchSet.size() == 0) {
+      cascades.insert(history);
+      return;
+   }
+   set<double> newSearchSet;
+   set<double> nodeCoins = coinMap.find(currentNode)->second;
+   set_intersection(searchSet.begin(), searchSet.end(),
+		    nodeCoins.begin(), nodeCoins.end(),
+		    inserter(newSearchSet, newSearchSet.begin()) );
+   for(set<double>::iterator it = newSearchSet.begin(); it != newSearchSet.end();
+       it++) {
+      history.insert(*it);
+      if(CoincidenceCheck(history)) {
+	 BranchBuilder(history, newSearchSet, *it);
+	 histories.insert(history);
       }
    }
-   
-   branches.insert(branch);
-
-   cout << "Branch" << branchNum << ": ";
-   for(set<double>::iterator it1 = branch.begin(); 
-       it1 != branch.end(); it1++)
-      cout << *it1 << " ";
-   cout << endl;
-
-   branchNum++;
 }
 
 
 //********** Coin **********
 void Coin(void) {
    double gamma, coinGamma;
-   ifstream input("testCoins01.dat");
+   ifstream input("testCoins00.dat");
    while(!input.eof()) {
       input >> gamma >> coinGamma;
       gammas.insert(gamma);
@@ -121,85 +115,8 @@ void Coin(void) {
       
    cout << endl << "Begin working on building the branches...(PART B)" << endl;
    for(set<double>::iterator it = gammas.begin(); it != gammas.end(); it++) {
-      cout << "Coincidence info for Gamma " << *it << endl;
-      CoinMap::iterator itMap = coinMap.find(*it);
-      if(itMap == coinMap.end())
-	 continue;
-      
-      set<double> trunk = itMap->second;      
-      cout << "Trunk: ";
-      for(set<double>::iterator it0 = trunk.begin(); it0 != trunk.end(); it0++)
-	 cout << *it0 << " ";
-      cout << endl;
-
-      do {
-	 BranchBuilder(trunk);
-      } while (trunk.size() > 1);
-
-      cout << endl;
-      branchNum = 0;
-   }//for(set<double>
+      set<double> parent;
+      parent.insert(*it);
+      BranchBuilder(parent, gammas, *it);
+   }//for(set<double>::iterator it
 }//void Coin
-
-
-//********** CoinFit **********
-void CoinFit(const double &gammaA, const double &gammaB) {
-   
-   bool rangeA, rangeB;
-   data searchA = make_pair(gammaA, gammaB);
-   data searchB = make_pair(gammaB, gammaA);
-   double gamma, coinGamma, area, error;
-   map<data , data> info;
-   
-   ifstream input("coinFit.temp");
-   while(input) {
-      input >> gamma >> coinGamma >> area >> error;
-      data temp = make_pair(gamma, coinGamma);
-      double low  = area - area * error;
-      double high = area + area * error;
-      data temp0 = make_pair(low, high);
-      info.insert(make_pair(temp, temp0));
-   }
-   input.close();
-
-   map<data, data>::iterator resultA = info.find(searchA);
-   map<data, data>::iterator resultB = info.find(searchB);
-
-   if(resultA == info.end()) {
-      cout << "Cannot match up the pair: Gamma = " << gammaA
-	   << "    CoinGamma = " << gammaB << endl;
-   } else if (resultB == info.end()) {
-      cout << "Cannot match up the pair: Gamma = " << gammaB 
-	   << "    CoinGamma = " << gammaA << endl;
-   } else {
-      double lowA  = (*resultA).second.first;
-      double highA = (*resultA).second.second;
-      double lowB  = (*resultB).second.first;
-      double highB = (*resultB).second.second;      
-
-      cout << "Range A : " << lowA << " " << highA << endl
-	   << "Range B : " << lowB << " " << highB << endl;
-
-      if(CheckRange(highA, lowB, highB) || 
-	 CheckRange(highB, lowA, highA))
-	 cout << "All right!!!" << endl;
-   }
-}
-
-
-//********** Efficiency **********
-double Efficiency(double &gamma) { 
-   double a = 3.32279414992658;
-   double b = 1.54427141359085;
-   double c = 0.0;
-   double d = 1.72160285083389;
-   double e = -0.917694438461626;
-   double f = -0.023829901492745;
-   double g = 4.87920961486282;
-   double E1 = 50.;
-   double E2 = 1000.;
-
-   double eff = exp(pow(pow((a+b*log10(gamma/E1)+c*pow(log10(gamma/E1),2)),-g) + 
-    			pow(d+e*log10(gamma/E2)+f*pow(log10(gamma/E2),2), -g), -1/g));
-   return(eff);   
-}
