@@ -53,10 +53,6 @@ bool CoincidenceCheck(set<double> &history) {
 //********** BranchBuilder **********
 void BranchBuilder(set<double> history, set<double> searchSet, double currentNode) 
 {
-   OutputSet("History", history);
-   OutputSet("Search Set", searchSet);
-   cout << "Current Node: " << currentNode << endl << endl; 
-   
    if(histories.find(history) != histories.end())
       return;
    if(searchSet.size() == 0) {
@@ -70,17 +66,14 @@ void BranchBuilder(set<double> history, set<double> searchSet, double currentNod
    
    set<double> newSearchSet;
    set<double> nodeCoins = coinMap.find(currentNode)->second;
-   OutputSet("NodeCoins", nodeCoins);
    set_intersection(searchSet.begin(), searchSet.end(),
 		    nodeCoins.begin(), nodeCoins.end(),
 		    inserter(newSearchSet, newSearchSet.begin()) );
-   OutputSet("New Search Set", newSearchSet);
    cout << endl;
    for(set<double>::iterator it = nodeCoins.begin(); it != nodeCoins.end();
        it++) {
       history.insert(*it);
       if(CoincidenceCheck(history)) {
-	 OutputSet("Branch Builder on history", history);
 	 BranchBuilder(history, newSearchSet, *it);
 	 histories.insert(history);
       }
@@ -134,9 +127,6 @@ void Coin(void) {
    for(set<double>::iterator it = gammas.begin(); it != gammas.end(); it++) {
       set<double> parent;
       parent.insert(*it);
-      cout << endl 
-	   << "We are currently working on the info for gamma" 
-	   << *it << endl;
       BranchBuilder(parent, gammas, *it);
    }//for(set<double>::iterator it
 
