@@ -53,10 +53,6 @@ void BranchBuilder(set<double> history, set<double> searchSet, double currentNod
 {
    if(histories.find(history) != histories.end())
       return;
-   if(searchSet.size() == 0) {
-      cascades.insert(history);
-      return;
-   }
    if(searchSet.size() == 1 && CoincidenceCheck(history)) {
       cascades.insert(history);
       return;
@@ -67,7 +63,13 @@ void BranchBuilder(set<double> history, set<double> searchSet, double currentNod
    set_intersection(searchSet.begin(), searchSet.end(),
 		    nodeCoins.begin(), nodeCoins.end(),
 		    inserter(newSearchSet, newSearchSet.begin()) );
-   for(set<double>::iterator it = nodeCoins.begin(); it != nodeCoins.end();
+
+   if(newSearchSet.size() == 0) {
+      cascades.insert(history);
+      return;
+   }
+   
+   for(set<double>::iterator it = newSearchSet.begin(); it != newSearchSet.end();
        it++) {
       history.insert(*it);
       if(CoincidenceCheck(history)) {
