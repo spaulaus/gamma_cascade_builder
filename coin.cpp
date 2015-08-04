@@ -50,9 +50,17 @@ bool CoincidenceCheck(set<double> &history) {
 //********** BranchBuilder **********
 void BranchBuilder(set<double> history, set<double> searchSet, double currentNode) 
 {
-    if(histories.find(history) != histories.end())
-	return;
+    // cout << endl << "BEGINNING BRANCH BUILDER: " << endl
+    // 	 << "Current Node: " << currentNode << endl;
+    // OutputSet("Search Set", searchSet, 0);
+    // OutputSet("History", history, 0);
+    if(histories.find(history) != histories.end()) {
+    	cout << "Inside history check " << endl; 
+    	return;
+    }
     if(searchSet.size() == 1 && CoincidenceCheck(history)) {
+	cout << "Inside Cascade Insertion" << endl;
+	OutputSet("History", history, 1);
 	cascades.insert(history);
 	return;
     }
@@ -67,22 +75,30 @@ void BranchBuilder(set<double> history, set<double> searchSet, double currentNod
 	cascades.insert(history);
 	return;
     }
+
+    //OutputSet("NodeCoins", nodeCoins,0);
+    //OutputSet("New Search Set", newSearchSet, 0);
+    //cout << endl;
     
     for(set<double>::iterator it = newSearchSet.begin(); it != newSearchSet.end();
 	it++) {
+	//cout << "Inside newSearchSet Loop " << *it << " " << currentNode << endl;
 	history.insert(*it);
+	OutputSet("History In Loop",history,4);
 	if(CoincidenceCheck(history)) {
 	    BranchBuilder(history, newSearchSet, *it);
 	    histories.insert(history);
 	}
     }
+    //cout << "Immediately following the newSearchSet loop " << currentNode << endl;
 }
 
 
 //********** Coin **********
 void Coin(void) {
     double gamma, coinGamma;
-    ifstream input("testCoins02.dat");
+    ifstream input("testCoins00.dat");
+    //ifstream input("coin.dat");
     while(!input.eof()) {
 	input >> gamma >> coinGamma;
 	gammas.insert(gamma);
@@ -91,24 +107,21 @@ void Coin(void) {
     input.close();
     
     //! Build the coincidence map. (PART A)
-    set<GammaPair> tempCoinSet = coinSet;
     set<double> tempSet;
-    double tempGamma = coinSet.begin()->first;
-    for(set<GammaPair>::iterator it = tempCoinSet.begin(); 
-	it != tempCoinSet.end(); it++) {
-	gamma = it->first;
-	if(tempGamma != gamma || *it == *tempCoinSet.rbegin()) {
-	    coinMap.insert(make_pair(tempGamma,tempSet));
+    for(set<GammaPair>::iterator it = coinSet.begin(); 
+	it != coinSet.end(); it++) {
+	double curGamma = it->first;
+	double nextGamma = coinSet.upper_bound(*it)->first;
+	GammaPair invCoin = make_pair(it->second, it->first);
+	bool hasInverse = coinSet.find(invCoin) != coinSet.end();
+
+	if(hasInverse)
+	    tempSet.insert(it->second);
+
+	if(nextGamma != curGamma || *it == *coinSet.rbegin()) {
+	    coinMap.insert(make_pair(curGamma, tempSet));
 	    tempSet.clear();
 	}
-	
-	GammaPair inv = make_pair(it->second, it->first);
-	set<GammaPair>::iterator itInvPos = tempCoinSet.find(inv);
-	
-	if(itInvPos != tempCoinSet.end()) {
-	    tempSet.insert(it->second);
-	}
-	tempGamma = gamma;
     }
     
     cout << "Here's what we've got in the coincidence map (PART A)" << endl;
@@ -121,18 +134,26 @@ void Coin(void) {
 	cout << endl;
     }
     
-    cout << endl << "Begin working on building the branches...(PART B)";
+    cout << endl << "Begin working on building the branches...(PART B)" << endl;
     for(set<double>::iterator it = gammas.begin(); it != gammas.end(); it++) {
-	set<double> parent;
-	parent.insert(*it);
-	BranchBuilder(parent, gammas, *it);
-    }//for(set<double>::iterator it
+    	set<double> parent;
+    	parent.insert(*it);
+    	BranchBuilder(parent, gammas, *it);
+    } //for(set<double>::iterator it
     
+    // set<double> parent;
+    // parent.insert(706);
+    // BranchBuilder(parent, gammas, 706);
+
     cout << endl << "Here are the cascades: " << endl;
     int counter = 0;
     for(set<set<double> >::iterator it = cascades.begin(); it != cascades.end();
 	it++, counter++)
 	OutputSet("Cascade", *it, counter);
+    // cout << endl;
+    // for(set<set<double> >::iterator it = histories.begin(); it != histories.end();
+    // 	it++, counter++)
+    // 	OutputSet("History",*it, counter);
 }//void Coin
 
 
