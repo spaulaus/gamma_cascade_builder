@@ -97,8 +97,8 @@ void BranchBuilder(set<double> history, set<double> searchSet, double currentNod
 //********** Coin **********
 void Coin(void) {
     double gamma, coinGamma;
-    ifstream input("testCoins00.dat");
-    //ifstream input("coin.dat");
+    //ifstream input("testCoins00.dat");
+    ifstream input("coin.dat");
     while(!input.eof()) {
 	input >> gamma >> coinGamma;
 	gammas.insert(gamma);

@@ -1,0 +1,78 @@
+Here's what we've got in the coincidence map (PART A)
+Gamma 41 is true with 52 264 775 832 942 1103 1137 1322 1363 2151 
+Gamma 52 is true with 41 449 591 775 832 1363 
+Gamma 264 is true with 41 622 775 872 1506 2829 
+Gamma 306 is true with 380 622 775 872 1112 1322 1492 1506 2319 2829 
+Gamma 380 is true with 306 
+Gamma 432 is true with 449 
+Gamma 449 is true with 52 432 573 827 925 1463 1559 2104 2501 2514 2596 2787 2882 3386 3402 
+Gamma 573 is true with 449 745 1463 
+Gamma 591 is true with 52 
+Gamma 622 is true with 264 306 
+Gamma 745 is true with 573 
+Gamma 775 is true with 41 52 264 306 
+Gamma 827 is true with 449 1463 
+Gamma 832 is true with 41 52 1363 
+Gamma 872 is true with 264 306 
+Gamma 885 is true with 
+Gamma 925 is true with 449 1112 
+Gamma 942 is true with 41 2151 
+Gamma 961 is true with 
+Gamma 1103 is true with 41 
+Gamma 1112 is true with 306 925 
+Gamma 1137 is true with 41 
+Gamma 1322 is true with 41 306 
+Gamma 1363 is true with 41 52 832 
+Gamma 1463 is true with 449 573 827 
+Gamma 1492 is true with 306 
+Gamma 1506 is true with 264 306 
+Gamma 1559 is true with 449 
+Gamma 2104 is true with 449 
+Gamma 2151 is true with 41 942 
+Gamma 2319 is true with 306 
+Gamma 2360 is true with 
+Gamma 2501 is true with 449 
+Gamma 2514 is true with 449 
+Gamma 2596 is true with 449 
+Gamma 2787 is true with 449 
+Gamma 2829 is true with 264 306 
+Gamma 2882 is true with 449 
+Gamma 3386 is true with 449 
+Gamma 3402 is true with 
+
+Begin working on building the branches...(PART B)
+Here are the cascades: 
+Cascade 0 : 41 52 775 
+Cascade 1 : 41 52 832 1363 
+Cascade 2 : 41 264 775 
+Cascade 3 : 41 942 2151 
+Cascade 4 : 41 1103 
+Cascade 5 : 41 1137 
+Cascade 6 : 41 1322 
+Cascade 7 : 52 449 
+Cascade 8 : 52 591 
+Cascade 9 : 264 622 
+Cascade 10 : 264 872 
+Cascade 11 : 264 1506 
+Cascade 12 : 264 2829 
+Cascade 13 : 306 380 
+Cascade 14 : 306 1112 
+Cascade 15 : 306 1492 
+Cascade 16 : 306 2319 
+Cascade 17 : 432 449 
+Cascade 18 : 449 573 1463 
+Cascade 19 : 449 827 1463 
+Cascade 20 : 449 925 
+Cascade 21 : 449 1559 
+Cascade 22 : 449 2104 
+Cascade 23 : 449 2501 
+Cascade 24 : 449 2514 
+Cascade 25 : 449 2596 
+Cascade 26 : 449 2787 
+Cascade 27 : 449 2882 
+Cascade 28 : 449 3386 
+Cascade 29 : 573 745 
+Cascade 30 : 885 
+Cascade 31 : 961 
+Cascade 32 : 2360 
+Cascade 33 : 3402 
